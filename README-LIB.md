@@ -20,17 +20,17 @@ A fully customizable and extensible React editor built on TipTap with drag-and-d
 ### Installation
 
 ```bash
-npm install react-tiptap-editor
+npm install react-richtext-tiptap
 # or
-yarn add react-tiptap-editor
+yarn add react-richtext-tiptap
 # or
-pnpm add react-tiptap-editor
+pnpm add react-richtext-tiptap
 ```
 
 ### Basic Usage
 
 ```tsx
-import { Editor } from 'react-tiptap-editor'
+import { Editor } from 'react-richtext-tiptap'
 
 function MyApp() {
   const [content, setContent] = useState('')
@@ -48,7 +48,7 @@ function MyApp() {
 ### With Image Upload
 
 ```tsx
-import { Editor, handleImageDrop } from 'react-tiptap-editor'
+import { Editor, handleImageDrop } from 'react-richtext-tiptap'
 
 function MyApp() {
   const [content, setContent] = useState('')
@@ -208,7 +208,7 @@ import {
   BasicExtensions,
   RichTextExtensions,
   FullFeaturedExtensions
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 
 // Use a preset
 <Editor
@@ -225,7 +225,7 @@ import {
   createExtensionSet,
   mergeExtensions,
   overrideExtensions
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 
 // Create custom extension set
 const customExtensions = mergeExtensions(
@@ -252,7 +252,7 @@ import {
   insertDraggableImage,
   updateImageAlignment,
   handleImageDrop
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 
 // Insert image programmatically
 insertDraggableImage(editor, 'https://example.com/image.jpg', {
@@ -279,7 +279,7 @@ import {
   exportToJSON,
   setContent,
   clearContent
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 
 // Export content
 const html = exportToHTML(editor)
@@ -438,7 +438,7 @@ npm test
 Import the built-in feature testing component:
 
 ```tsx
-import { FeatureTest } from 'react-tiptap-editor/testing'
+import { FeatureTest } from 'react-richtext-tiptap/testing'
 
 function TestPage() {
   return <FeatureTest />
@@ -451,16 +451,16 @@ The library is optimized for tree-shaking. Import only what you need:
 
 ```tsx
 // Import everything (not recommended for production)
-import * from 'react-tiptap-editor'
+import * from 'react-richtext-tiptap'
 
 // Import only specific components (recommended)
-import { Editor, Toolbar, useEditor } from 'react-tiptap-editor'
+import { Editor, Toolbar, useEditor } from 'react-richtext-tiptap'
 
 // Import specific extensions
 import { 
   BasicExtensions, 
   insertDraggableImage 
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 ```
 
 ## 🤝 Contributing
@@ -471,7 +471,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/react-tiptap-editor.git
+git clone https://github.com/your-org/react-richtext-tiptap.git
 
 # Install dependencies
 npm install
@@ -488,7 +488,7 @@ npm run build
 
 ## 📄 License
 
-MIT © [React TipTap Team](https://github.com/your-org/react-tiptap-editor)
+MIT © [React TipTap Team](https://github.com/your-org/react-richtext-tiptap)
 
 ## 🙏 Acknowledgments
 
@@ -500,8 +500,8 @@ MIT © [React TipTap Team](https://github.com/your-org/react-tiptap-editor)
 
 ## 📊 Stats
 
-![npm](https://img.shields.io/npm/v/react-tiptap-editor)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-tiptap-editor)
-![npm downloads](https://img.shields.io/npm/dm/react-tiptap-editor)
-![GitHub stars](https://img.shields.io/github/stars/your-org/react-tiptap-editor)
-![GitHub license](https://img.shields.io/github/license/your-org/react-tiptap-editor)
+![npm](https://img.shields.io/npm/v/react-richtext-tiptap)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-richtext-tiptap)
+![npm downloads](https://img.shields.io/npm/dm/react-richtext-tiptap)
+![GitHub stars](https://img.shields.io/github/stars/your-org/react-richtext-tiptap)
+![GitHub license](https://img.shields.io/github/license/your-org/react-richtext-tiptap)

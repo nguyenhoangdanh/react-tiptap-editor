@@ -22,4 +22,25 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  build: {
+    lib: {
+      entry: resolve(projectRoot, 'src/index.ts'),
+      name: 'ReactTiptapEditor',
+      formats: ['es', 'cjs'],
+      fileName: (format) => `index.${format === 'es' ? 'esm' : 'cjs'}.js`
+    },
+    rollupOptions: {
+      external: [
+        'react',
+        'react-dom',
+        '@tiptap/react',
+        '@tiptap/core',
+        '@tiptap/pm',
+        /^@tiptap\/extension-.*/,
+        'lucide-react',
+        /^@dnd-kit\/.*/,
+        'tiptap-extension-resize-image'
+      ]
+    }
+  }
 });

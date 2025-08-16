@@ -45,7 +45,7 @@ const SAMPLE_CONTENT = `
 <p>You can also try <mark>highlighting text</mark>, adding <a href="#">links</a>, and formatting content with the toolbar above.</p>
 <h3>Code Examples</h3>
 <pre><code>// Simple usage
-import { Editor } from 'react-tiptap-editor'
+import { Editor } from 'react-richtext-tiptap'
 
 function MyApp() {
   return (
@@ -376,14 +376,14 @@ export default function EditorDemo() {
                 <div>
                   <h4 className="font-medium mb-2">1. Install</h4>
                   <code className="text-xs bg-muted p-2 rounded block">
-                    npm install react-tiptap-editor
+                    npm install react-richtext-tiptap
                   </code>
                 </div>
 
                 <div>
                   <h4 className="font-medium mb-2">2. Basic Usage</h4>
                   <pre className="text-xs bg-muted p-2 rounded overflow-auto">
-                    <code>{`import { Editor } from 'react-tiptap-editor'
+                    <code>{`import { Editor } from 'react-richtext-tiptap'
 
 function App() {
   return (
@@ -402,7 +402,7 @@ function App() {
                     <code>{`import { 
   Editor, 
   handleImageDrop 
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 
 function App() {
   const handleDrop = (editor, files) => {

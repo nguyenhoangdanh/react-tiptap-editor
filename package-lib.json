@@ -1,5 +1,5 @@
 {
-  "name": "react-tiptap-editor",
+  "name": "react-richtext-tiptap",
   "version": "1.0.0",
   "description": "A fully customizable and extensible React editor built on TipTap with drag-and-drop images, complete TypeScript support, and modern UI components",
   "author": "React TipTap Team",
@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/react-tiptap-editor.git"
+    "url": "https://github.com/nguyenhoangdanh/react-tiptap-editor.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/react-tiptap-editor/issues"
+    "url": "https://github.com/nguyenhoangdanh/react-tiptap-editor/issues"
   },
-  "homepage": "https://github.com/your-username/react-tiptap-editor#readme",
+  "homepage": "https://github.com/nguyenhoangdanh/react-tiptap-editor#readme",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -52,10 +52,10 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0",
+    "@tiptap/core": ">=3.0.0",
     "@tiptap/react": ">=3.0.0",
-    "@tiptap/core": ">=3.0.0"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -94,11 +94,11 @@
     "@tiptap/extension-underline": "^3.2.0",
     "@tiptap/pm": "^3.2.0",
     "@tiptap/starter-kit": "^3.2.0",
-    "tiptap-extension-resize-image": "^1.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.484.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "tiptap-extension-resize-image": "^1.3.0"
   },
   "devDependencies": {
     "@types/react": "^19.1.10",
@@ -110,7 +110,7 @@
     "eslint": "^9.33.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.12",
-    "tsup": "^8.3.5",
+    "tsup": "^8.5.0",
     "typescript": "^5.7.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"

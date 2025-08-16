@@ -18,11 +18,11 @@ A comprehensive, fully customizable React editor library built on TipTap with ad
 ## 📦 Installation
 
 ```bash
-npm install react-tiptap-editor
+npm install react-richtext-tiptap
 # or
-yarn add react-tiptap-editor
+yarn add react-richtext-tiptap
 # or
-pnpm add react-tiptap-editor
+pnpm add react-richtext-tiptap
 ```
 
 ### Peer Dependencies
@@ -38,7 +38,7 @@ npm install react react-dom @tiptap/react @tiptap/starter-kit
 ### Basic Usage
 
 ```tsx
-import { Editor } from 'react-tiptap-editor'
+import { Editor } from 'react-richtext-tiptap'
 
 function App() {
   const [content, setContent] = useState('<p>Hello world!</p>')
@@ -62,7 +62,7 @@ import {
   StarterKit,
   Color,
   TextStyle
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 
 const customExtensions = [
   StarterKit,
@@ -88,7 +88,7 @@ function CustomEditor() {
 ### With Image Upload
 
 ```tsx
-import { Editor, handleImageDrop } from 'react-tiptap-editor'
+import { Editor, handleImageDrop } from 'react-richtext-tiptap'
 
 function EditorWithUpload() {
   const uploadImage = async (file: File): Promise<string> => {
@@ -196,7 +196,7 @@ import {
   BasicExtensions,      // Essential formatting tools
   RichTextExtensions,   // Advanced formatting without tables
   FullFeaturedExtensions // Everything including drag-and-drop images
-} from 'react-tiptap-editor'
+} from 'react-richtext-tiptap'
 ```
 
 ### Drag-and-Drop Images
@@ -204,7 +204,7 @@ import {
 #### Creating Draggable Images
 
 ```tsx
-import { createDraggableImageExtensions } from 'react-tiptap-editor'
+import { createDraggableImageExtensions } from 'react-richtext-tiptap'
 
 const imageExtensions = createDraggableImageExtensions({
   allowDrag: true,
@@ -221,7 +221,7 @@ const imageExtensions = createDraggableImageExtensions({
 #### Image Upload Handler
 
 ```tsx
-import { handleImageDrop } from 'react-tiptap-editor'
+import { handleImageDrop } from 'react-richtext-tiptap'
 
 await handleImageDrop(editor, files, {
   maxSize: 5 * 1024 * 1024, // 5MB
@@ -373,7 +373,7 @@ Replace built-in UI components with your own:
 
 ```tsx
 import { EditorContent } from '@tiptap/react'
-import { useEditor, DragAndDropWrapper } from 'react-tiptap-editor'
+import { useEditor, DragAndDropWrapper } from 'react-richtext-tiptap'
 
 function MyCustomEditor() {
   const { editor } = useEditor()
@@ -414,7 +414,7 @@ Listen to editor events for custom behavior:
 ### Minimal Blog Editor
 
 ```tsx
-import { Editor, BasicExtensions } from 'react-tiptap-editor'
+import { Editor, BasicExtensions } from 'react-richtext-tiptap'
 
 function BlogEditor({ post, onSave }) {
   return (
@@ -439,7 +439,7 @@ function BlogEditor({ post, onSave }) {
 ### Documentation Editor
 
 ```tsx
-import { Editor, FullFeaturedExtensions } from 'react-tiptap-editor'
+import { Editor, FullFeaturedExtensions } from 'react-richtext-tiptap'
 
 function DocsEditor() {
   return (
@@ -507,10 +507,10 @@ MIT © [React TipTap Team](LICENSE)
 
 ## 🙋‍♂️ Support
 
-- 📖 [Documentation](https://react-tiptap-editor.dev)
-- 🐛 [Issues](https://github.com/react-tiptap-editor/issues)
-- 💬 [Discussions](https://github.com/react-tiptap-editor/discussions)
-- 📧 [Email Support](mailto:support@react-tiptap-editor.dev)
+- 📖 [Documentation](https://react-richtext-tiptap.dev)
+- 🐛 [Issues](https://github.com/react-richtext-tiptap/issues)
+- 💬 [Discussions](https://github.com/react-richtext-tiptap/discussions)
+- 📧 [Email Support](mailto:support@react-richtext-tiptap.dev)
 
 ## 🔗 Related Projects
 

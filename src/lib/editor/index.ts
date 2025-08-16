@@ -272,7 +272,7 @@ export const version = '1.0.0'
 
 // Library info
 export const libraryInfo = {
-  name: 'react-tiptap-editor',
+  name: 'react-richtext-tiptap',
   version,
   description: 'A fully customizable and extensible React editor built on TipTap',
   author: 'React TipTap Team',

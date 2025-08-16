@@ -1,4 +1,4 @@
-import { useEditor as useTiptapEditor, EditorOptions } from '@tiptap/react'
+import { useEditor as useTiptapEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Color } from '@tiptap/extension-color'
 import { TextStyle } from '@tiptap/extension-text-style'

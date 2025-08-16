@@ -64,7 +64,7 @@ fi
 echo "📦 Testing package creation..."
 npm pack --quiet
 
-PACKAGE_FILE=$(ls react-tiptap-editor-*.tgz | head -n 1)
+PACKAGE_FILE=$(ls react-richtext-tiptap-*.tgz | head -n 1)
 
 if [ -f "$PACKAGE_FILE" ]; then
     echo "✅ Package created: $PACKAGE_FILE"
