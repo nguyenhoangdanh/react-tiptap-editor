@@ -1,106 +1,269 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Global styles for the React TipTap Editor Library */
 
-@layer base {
-  /**
-   * Tailwind CSS theme
-   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
-   * A different format will require also updating the theme in tailwind.config.ts.
-  */
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+/* Editor container styles */
+.ProseMirror {
+  outline: none;
+  font-family: inherit;
+  line-height: 1.6;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
+.ProseMirror-focused {
+  outline: none;
+}
 
-  body {
-    @apply bg-background text-foreground;
-  }
+/* Selection styles */
+.ProseMirror ::selection {
+  background: oklch(0.6 0.25 240 / 0.2);
+}
+
+.ProseMirror::-moz-selection {
+  background: oklch(0.6 0.25 240 / 0.2);
+}
+
+/* Drag and drop styles */
+.ProseMirror-selectednode {
+  outline: 2px solid oklch(0.6 0.25 240);
+}
+
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  min-width: 1em;
+  border: 1px solid oklch(0.9 0.02 240);
+  padding: 3px 5px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.ProseMirror table th {
+  font-weight: bold;
+  text-align: left;
+  background-color: oklch(0.95 0.02 240);
+}
+
+.ProseMirror table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: oklch(0.6 0.25 240 / 0.2);
+  pointer-events: none;
+}
+
+.ProseMirror table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  cursor: col-resize;
+  background-color: oklch(0.6 0.25 240);
+}
+
+.tableWrapper {
+  padding: 1rem 0;
+  overflow-x: auto;
+}
+
+.ProseMirror .resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+/* Image wrapper and drag handle styles */
+.image-node-view {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  max-width: 100%;
+}
+
+.image-node-view img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.image-node-view.ProseMirror-selectednode img {
+  outline: 2px solid oklch(0.6 0.25 240);
+  outline-offset: 2px;
+}
+
+/* Drag handle for images */
+.drag-handle {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: white;
+  border: 1px solid oklch(0.9 0.02 240);
+  border-radius: 0.25rem;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.1);
+  z-index: 10;
+}
+
+.image-node-view:hover .drag-handle,
+.image-node-view.ProseMirror-selectednode .drag-handle {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: oklch(0.6 0.25 240);
+  border: 2px solid white;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.image-node-view:hover .resize-handle,
+.image-node-view.ProseMirror-selectednode .resize-handle {
+  opacity: 1;
+}
+
+.resize-handle:hover {
+  transform: scale(1.1);
+}
+
+.resize-handle.nw {
+  top: -0.375rem;
+  left: -0.375rem;
+  cursor: nw-resize;
+}
+
+.resize-handle.ne {
+  top: -0.375rem;
+  right: -0.375rem;
+  cursor: ne-resize;
+}
+
+.resize-handle.sw {
+  bottom: -0.375rem;
+  left: -0.375rem;
+  cursor: sw-resize;
+}
+
+.resize-handle.se {
+  bottom: -0.375rem;
+  right: -0.375rem;
+  cursor: se-resize;
+}
+
+/* Image alignment classes */
+.image-align-left {
+  float: left;
+  margin: 0.5rem 1rem 1rem 0;
+  clear: left;
+}
+
+.image-align-right {
+  float: right;
+  margin: 0.5rem 0 1rem 1rem;
+  clear: right;
+}
+
+.image-align-center {
+  display: block;
+  margin: 1rem auto;
+  clear: both;
+}
+
+/* Drag overlay styles */
+.drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.8;
+  transform: rotate(5deg);
+}
+
+/* Drop zone indicators */
+.drop-zone {
+  position: relative;
+}
+
+.drop-zone::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: oklch(0.6 0.25 240);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.drop-zone.drag-over::after {
+  opacity: 1;
+}
+
+/* Collaborative cursor styles */
+.collaboration-cursor {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  word-break: normal;
+  pointer-events: none;
+}
+
+.collaboration-cursor::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  user-select: none;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
 }

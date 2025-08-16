@@ -1,4 +1,4 @@
-import { BubbleMenu as TiptapBubbleMenu } from '@tiptap/react'
+import { BubbleMenu as TiptapBubbleMenu } from '@tiptap/react/menus'
 import { Editor } from '@tiptap/react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -113,10 +113,8 @@ export const BubbleMenu = ({ editor, config = {}, className }: BubbleMenuProps) 
     <TiptapBubbleMenu
       editor={editor}
       shouldShow={shouldShow}
-      tippyOptions={{
-        duration: 100,
+      options={{
         placement: defaultConfig.placement === 'auto' ? 'top' : defaultConfig.placement,
-        maxWidth: 'none',
       }}
       className={cn(
         "flex items-center gap-1 p-2 bg-background border border-border rounded-lg shadow-lg backdrop-blur-sm",

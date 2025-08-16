@@ -1,0 +1,678 @@
+@import 'tailwindcss';
+@import "tw-animate-css";
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+:root {
+  --background: oklch(0.98 0.01 250);
+  --foreground: oklch(0.15 0.02 240);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 240);
+
+  --primary: oklch(0.6 0.25 240);
+  --primary-foreground: oklch(0.98 0.01 240);
+  --secondary: oklch(0.96 0.01 240);
+  --secondary-foreground: oklch(0.15 0.02 240);
+  --accent: oklch(0.96 0.01 240);
+  --accent-foreground: oklch(0.15 0.02 240);
+  --destructive: oklch(0.65 0.25 15);
+  --destructive-foreground: oklch(0.98 0.01 15);
+
+  --muted: oklch(0.96 0.01 240);
+  --muted-foreground: oklch(0.45 0.02 240);
+  --border: oklch(0.92 0.01 240);
+  --input: oklch(0.92 0.01 240);
+  --ring: oklch(0.6 0.25 240);
+
+  --radius: 0.5rem;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.5);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 3);
+  --radius-full: 9999px;
+}
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .image-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .image-wrapper:hover .image-drag-handle,
+  .image-wrapper:hover .image-resize-handle {
+    opacity: 1;
+  }
+  
+  .image-wrapper.float-left {
+    float: left;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    clear: left;
+  }
+  
+  .image-wrapper.float-right {
+    float: right;
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+    clear: right;
+  }
+  
+  .image-wrapper.block {
+    display: block;
+    margin: 1rem auto;
+    clear: both;
+  }
+  
+  .draggable-image {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid transparent;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+  }
+  
+  .draggable-image:hover {
+    border-color: oklch(var(--color-primary) / 0.2);
+    box-shadow: 0 4px 6px -1px oklch(0 0 0 / 0.1), 0 2px 4px -2px oklch(0 0 0 / 0.1);
+  }
+  
+  .image-drag-handle {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: white;
+    box-shadow: 0 4px 6px -1px oklch(0 0 0 / 0.1), 0 2px 4px -2px oklch(0 0 0 / 0.1);
+    border-radius: 0.25rem;
+    padding: 0.25rem;
+    cursor: move;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+  }
+  
+  .image-resize-handle {
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--color-primary);
+    border: 1px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+  
+  .image-resize-handle:hover {
+    transform: scale(1.1);
+  }
+  
+  .dnd-wrapper {
+    position: relative;
+  }
+
+  /* Fix for prose plugin list styling conflicts */
+  .ProseMirror ul,
+  .ProseMirror .tiptap-bullet-list,
+  .prose ul,
+  .prose .tiptap-bullet-list {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+    margin: 1rem 0 !important;
+  }
+  
+  .ProseMirror ol,
+  .ProseMirror .tiptap-ordered-list,
+  .prose ol,
+  .prose .tiptap-ordered-list {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin: 1rem 0 !important;
+  }
+  
+  .ProseMirror ul li,
+  .ProseMirror ol li,
+  .ProseMirror .tiptap-list-item,
+  .prose ul li,
+  .prose ol li,
+  .prose .tiptap-list-item {
+    margin: 0.5rem 0 !important;
+    padding-left: 0.25rem !important;
+    display: list-item !important;
+  }
+  
+  .ProseMirror ul ul,
+  .ProseMirror ol ol,
+  .ProseMirror ul ol,
+  .ProseMirror ol ul,
+  .prose ul ul,
+  .prose ol ol,
+  .prose ul ol,
+  .prose ol ul {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Force list marker display for nested lists */
+  .ProseMirror ul li::marker,
+  .ProseMirror .tiptap-bullet-list .tiptap-list-item::marker,
+  .prose ul li::marker,
+  .prose .tiptap-bullet-list .tiptap-list-item::marker {
+    content: '•' !important;
+  }
+  
+  .ProseMirror ol li::marker,
+  .ProseMirror .tiptap-ordered-list .tiptap-list-item::marker,
+  .prose ol li::marker,
+  .prose .tiptap-ordered-list .tiptap-list-item::marker {
+    content: counter(list-item) '. ' !important;
+  }
+
+  /* Fix heading styles */
+  .ProseMirror h1,
+  .prose h1 {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    margin: 1.5rem 0 1rem 0 !important;
+  }
+  
+  .ProseMirror h2,
+  .prose h2 {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    margin: 1.25rem 0 0.75rem 0 !important;
+  }
+  
+  .ProseMirror h3,
+  .prose h3 {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+    margin: 1rem 0 0.5rem 0 !important;
+  }
+  
+  .ProseMirror h4,
+  .prose h4 {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+    margin: 0.75rem 0 0.5rem 0 !important;
+  }
+  
+  .ProseMirror h5,
+  .prose h5 {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+    margin: 0.5rem 0 0.25rem 0 !important;
+  }
+  
+  .ProseMirror h6,
+  .prose h6 {
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+    margin: 0.5rem 0 0.25rem 0 !important;
+  }
+
+  /* Text formatting */
+  .ProseMirror strong,
+  .prose strong {
+    font-weight: 700 !important;
+  }
+  
+  .ProseMirror em,
+  .prose em {
+    font-style: italic !important;
+  }
+  
+  .ProseMirror u,
+  .prose u {
+    text-decoration: underline !important;
+  }
+  
+  .ProseMirror s,
+  .prose s {
+    text-decoration: line-through !important;
+  }
+
+  /* Text alignment classes */
+  .ProseMirror [style*="text-align: left"],
+  .prose [style*="text-align: left"] {
+    text-align: left !important;
+  }
+  
+  .ProseMirror [style*="text-align: center"],
+  .prose [style*="text-align: center"] {
+    text-align: center !important;
+  }
+  
+  .ProseMirror [style*="text-align: right"],
+  .prose [style*="text-align: right"] {
+    text-align: right !important;
+  }
+  
+  .ProseMirror [style*="text-align: justify"],
+  .prose [style*="text-align: justify"] {
+    text-align: justify !important;
+  }
+
+  /* Prose adjustments for better text flow around images */
+  .prose .image-wrapper.float-left,
+  .prose .image-wrapper.float-right {
+    all: unset;
+  }
+  
+  .prose .image-wrapper.float-left + * {
+    clear: none;
+  }
+  
+  .prose .image-wrapper.float-right + * {
+    clear: none;
+  }
+  
+  .prose .image-wrapper.block {
+    all: unset;
+    margin: 1.5rem 0;
+  }
+
+  /* Editor link styles */
+  .editor-link {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: oklch(var(--color-primary) / 0.6);
+  }
+  
+  .editor-link:hover {
+    text-decoration-color: var(--color-primary);
+  }
+
+  /* Table styles */
+  .ProseMirror table,
+  .prose table {
+    border-collapse: collapse;
+    border: 1px solid var(--color-border);
+    width: 100%;
+    margin: 1.5rem 0;
+  }
+  
+  .ProseMirror th,
+  .ProseMirror td,
+  .prose th,
+  .prose td {
+    border: 1px solid var(--color-border);
+    padding: 0.75rem;
+    text-align: left;
+  }
+  
+  .ProseMirror th,
+  .prose th {
+    background: var(--color-muted);
+    font-weight: 600;
+  }
+
+  /* Code block improvements */
+  .ProseMirror pre,
+  .prose pre {
+    background: var(--color-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  
+  .ProseMirror code,
+  .prose code {
+    background: var(--color-muted);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .ProseMirror pre code,
+  .prose pre code {
+    background: transparent;
+    padding: 0;
+  }
+
+  /* Blockquote improvements */
+  .ProseMirror blockquote,
+  .prose blockquote {
+    border-left: 4px solid oklch(var(--color-primary) / 0.2);
+    background: oklch(var(--color-muted) / 0.5);
+    border-radius: 0 0.375rem 0.375rem 0;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+  }
+  
+  .ProseMirror blockquote p,
+  .prose blockquote p {
+    margin: 0 !important;
+  }
+}
+
+/* Custom placeholder styling */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: oklch(0.556 0 0);
+  pointer-events: none;
+  height: 0;
+}
+
+
+/* Global styles for the React TipTap Editor Library */
+
+/* Editor container styles */
+.ProseMirror {
+  outline: none;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.ProseMirror-focused {
+  outline: none;
+}
+
+/* Selection styles */
+.ProseMirror ::selection {
+  background: oklch(0.6 0.25 240 / 0.2);
+}
+
+.ProseMirror::-moz-selection {
+  background: oklch(0.6 0.25 240 / 0.2);
+}
+
+/* Drag and drop styles */
+.ProseMirror-selectednode {
+  outline: 2px solid oklch(0.6 0.25 240);
+}
+
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  min-width: 1em;
+  border: 1px solid oklch(0.9 0.02 240);
+  padding: 3px 5px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.ProseMirror table th {
+  font-weight: bold;
+  text-align: left;
+  background-color: oklch(0.95 0.02 240);
+}
+
+.ProseMirror table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: oklch(0.6 0.25 240 / 0.2);
+  pointer-events: none;
+}
+
+.ProseMirror table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  cursor: col-resize;
+  background-color: oklch(0.6 0.25 240);
+}
+
+.tableWrapper {
+  padding: 1rem 0;
+  overflow-x: auto;
+}
+
+.ProseMirror .resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+/* Image wrapper and drag handle styles */
+.image-node-view {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  max-width: 100%;
+}
+
+.image-node-view img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.image-node-view.ProseMirror-selectednode img {
+  outline: 2px solid oklch(0.6 0.25 240);
+  outline-offset: 2px;
+}
+
+/* Drag handle for images */
+.drag-handle {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: white;
+  border: 1px solid oklch(0.9 0.02 240);
+  border-radius: 0.25rem;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.1);
+  z-index: 10;
+}
+
+.image-node-view:hover .drag-handle,
+.image-node-view.ProseMirror-selectednode .drag-handle {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: oklch(0.6 0.25 240);
+  border: 2px solid white;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.image-node-view:hover .resize-handle,
+.image-node-view.ProseMirror-selectednode .resize-handle {
+  opacity: 1;
+}
+
+.resize-handle:hover {
+  transform: scale(1.1);
+}
+
+.resize-handle.nw {
+  top: -0.375rem;
+  left: -0.375rem;
+  cursor: nw-resize;
+}
+
+.resize-handle.ne {
+  top: -0.375rem;
+  right: -0.375rem;
+  cursor: ne-resize;
+}
+
+.resize-handle.sw {
+  bottom: -0.375rem;
+  left: -0.375rem;
+  cursor: sw-resize;
+}
+
+.resize-handle.se {
+  bottom: -0.375rem;
+  right: -0.375rem;
+  cursor: se-resize;
+}
+
+/* Image alignment classes */
+.image-align-left {
+  float: left;
+  margin: 0.5rem 1rem 1rem 0;
+  clear: left;
+}
+
+.image-align-right {
+  float: right;
+  margin: 0.5rem 0 1rem 1rem;
+  clear: right;
+}
+
+.image-align-center {
+  display: block;
+  margin: 1rem auto;
+  clear: both;
+}
+
+/* Drag overlay styles */
+.drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.8;
+  transform: rotate(5deg);
+}
+
+/* Drop zone indicators */
+.drop-zone {
+  position: relative;
+}
+
+.drop-zone::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: oklch(0.6 0.25 240);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.drop-zone.drag-over::after {
+  opacity: 1;
+}
+
+/* Collaborative cursor styles */
+.collaboration-cursor {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  word-break: normal;
+  pointer-events: none;
+}
+
+.collaboration-cursor::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  user-select: none;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+}

@@ -1,43 +1,48 @@
 # React TipTap Editor
 
-A fully customizable and extensible React editor library built on TipTap with complete TypeScript support.
+A comprehensive, fully customizable React editor library built on TipTap with advanced drag-and-drop image functionality, complete TypeScript support, and modern UI components.
 
-[![npm version](https://badge.fury.io/js/react-tiptap-editor.svg)](https://badge.fury.io/js/react-tiptap-editor)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![React TipTap Editor Demo](https://via.placeholder.com/800x400/3B82F6/FFFFFF?text=React+TipTap+Editor)
 
-## ✨ Features
+## 🚀 Features
 
-- 🚀 **Lightning Fast** - Built on TipTap's performant core
-- 🎨 **Fully Customizable** - Override any component, extension, or behavior
-- 🔧 **Extensible Architecture** - Add custom extensions and commands easily
-- 💎 **Beautiful UI** - Modern design with dark mode support
-- 📝 **TypeScript First** - Complete type safety and IntelliSense
-- 🎯 **Developer Friendly** - Intuitive API with excellent documentation
+- **🎯 Drag & Drop Images** - Upload and position images anywhere in your content with smart text wrapping
+- **🔧 Fully Extensible** - Override any extension, component, or behavior without touching library code
+- **📝 Rich Text Editing** - Complete formatting tools including tables, lists, code blocks, and more
+- **🎨 Customizable UI** - Styled with Tailwind CSS but completely themeable and overridable
+- **📱 Responsive Design** - Mobile-first design with touch-friendly controls
+- **⚡ Performance Optimized** - Built for fast, smooth editing experiences
+- **🔍 TypeScript First** - Complete type safety with comprehensive IntelliSense support
+- **🧩 Component Library** - Pre-built UI components that can be used independently
 
-## 🚀 Quick Start
-
-### Installation
+## 📦 Installation
 
 ```bash
 npm install react-tiptap-editor
-
-# or with yarn
+# or
 yarn add react-tiptap-editor
-
-# or with pnpm
+# or
 pnpm add react-tiptap-editor
 ```
+
+### Peer Dependencies
+
+Make sure you have these peer dependencies installed:
+
+```bash
+npm install react react-dom @tiptap/react @tiptap/starter-kit
+```
+
+## 🚀 Quick Start
 
 ### Basic Usage
 
 ```tsx
 import { Editor } from 'react-tiptap-editor'
-import { useState } from 'react'
 
-function MyEditor() {
-  const [content, setContent] = useState('<p>Start typing...</p>')
-  
+function App() {
+  const [content, setContent] = useState('<p>Hello world!</p>')
+
   return (
     <Editor
       content={content}
@@ -48,38 +53,75 @@ function MyEditor() {
 }
 ```
 
-### Advanced Usage with Hooks
+### With Custom Extensions
 
 ```tsx
-import { useEditor, Toolbar, BubbleMenu } from 'react-tiptap-editor'
+import { 
+  Editor, 
+  createDraggableImageExtensions,
+  StarterKit,
+  Color,
+  TextStyle
+} from 'react-tiptap-editor'
 
-function AdvancedEditor() {
-  const { editor, commands, state } = useEditor(
-    initialContent,
-    {
-      placeholder: "Tell your story...",
-      autofocus: true
-    },
-    handleChange
-  )
-  
+const customExtensions = [
+  StarterKit,
+  TextStyle,
+  Color,
+  ...createDraggableImageExtensions({
+    allowDrag: true,
+    maxWidth: 800,
+    textWrapMode: 'css'
+  })
+]
+
+function CustomEditor() {
   return (
-    <div>
-      <Toolbar editor={editor} />
-      <EditorContent editor={editor} />
-      <BubbleMenu editor={editor} />
-    </div>
+    <Editor
+      config={{ extensions: customExtensions }}
+      toolbar={{ showImage: true, showTextColor: true }}
+    />
   )
 }
 ```
 
-## 📚 Documentation
+### With Image Upload
 
-### Core Components
+```tsx
+import { Editor, handleImageDrop } from 'react-tiptap-editor'
 
-#### `<Editor />`
+function EditorWithUpload() {
+  const uploadImage = async (file: File): Promise<string> => {
+    // Upload to your server
+    const formData = new FormData()
+    formData.append('image', file)
+    
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+    
+    const { url } = await response.json()
+    return url
+  }
 
-The main editor component with built-in toolbar, bubble menu, and floating menu.
+  const handleDrop = (editor, files) => {
+    handleImageDrop(editor, files, {
+      onUpload: uploadImage,
+      alignment: 'center',
+      maxSize: 5 * 1024 * 1024 // 5MB
+    })
+  }
+
+  return <Editor onImageDrop={handleDrop} />
+}
+```
+
+## 🎛️ API Reference
+
+### Editor Component
+
+The main editor component with full customization options.
 
 ```tsx
 interface EditorProps {
@@ -95,331 +137,390 @@ interface EditorProps {
   floatingMenu?: FloatingMenuConfig | boolean
   theme?: EditorTheme
   className?: string
+  children?: ReactNode
 }
-```
-
-#### `<Toolbar />`
-
-Customizable toolbar with all formatting options.
-
-```tsx
-<Toolbar 
-  editor={editor}
-  config={{
-    showBold: true,
-    showItalic: true,
-    showLink: true,
-    customButtons: [myCustomButton]
-  }}
-/>
-```
-
-#### `<BubbleMenu />`
-
-Context menu that appears when text is selected.
-
-```tsx
-<BubbleMenu 
-  editor={editor}
-  config={{
-    showTextFormatting: true,
-    showLinkControls: true,
-    showColorControls: true
-  }}
-/>
-```
-
-#### `<FloatingMenu />`
-
-Menu that appears on empty lines for quick formatting.
-
-```tsx
-<FloatingMenu 
-  editor={editor}
-  config={{
-    showHeadings: true,
-    showLists: true,
-    showMedia: true
-  }}
-/>
 ```
 
 ### Hooks
 
-#### `useEditor()`
+#### useEditor
 
-Main hook for editor functionality.
+The main hook for editor functionality with commands and state.
 
 ```tsx
 const { editor, commands, state, content, isEmpty, isFocused } = useEditor(
-  content,
+  initialContent,
   config,
   onChange
 )
 ```
 
-#### `useEditorCommands()`
+#### useEditorCommands
 
-Access to all editor commands.
+Access editor commands independently.
 
 ```tsx
 const commands = useEditorCommands(editor)
 
-// Use commands
+// Available commands:
 commands.bold()
-commands.setLink('https://example.com')
-commands.insertImage('image-url.jpg')
+commands.italic()
+commands.addImage('url', 'alt text', 400, 300)
+commands.setTextAlign('center')
+commands.insertTable(3, 3)
+// ... and many more
 ```
 
-#### `useEditorState()`
+#### useEditorState
 
-Access to editor state information.
+Reactive editor state information.
 
 ```tsx
 const state = useEditorState(editor)
 
-// Check active states
-if (state.isActive.bold) {
-  // Bold is active
+// Available state:
+state.isActive.bold
+state.canUndo
+state.isEmpty
+state.selection
+// ... and more
+```
+
+### Extension Presets
+
+Pre-configured extension sets for different use cases:
+
+```tsx
+import {
+  MinimalExtensions,    // Basic text formatting only
+  BasicExtensions,      // Essential formatting tools
+  RichTextExtensions,   // Advanced formatting without tables
+  FullFeaturedExtensions // Everything including drag-and-drop images
+} from 'react-tiptap-editor'
+```
+
+### Drag-and-Drop Images
+
+#### Creating Draggable Images
+
+```tsx
+import { createDraggableImageExtensions } from 'react-tiptap-editor'
+
+const imageExtensions = createDraggableImageExtensions({
+  allowDrag: true,
+  textWrapMode: 'css', // or 'custom'
+  alignmentOptions: ['left', 'center', 'right', 'inline'],
+  maxWidth: 800,
+  maxHeight: 600,
+  minWidth: 50,
+  minHeight: 50,
+  maintainAspectRatio: true
+})
+```
+
+#### Image Upload Handler
+
+```tsx
+import { handleImageDrop } from 'react-tiptap-editor'
+
+await handleImageDrop(editor, files, {
+  maxSize: 5 * 1024 * 1024, // 5MB
+  allowedTypes: ['image/jpeg', 'image/png', 'image/gif'],
+  alignment: 'center',
+  onUpload: async (file) => {
+    // Your upload logic here
+    return await uploadToServer(file)
+  }
+})
+```
+
+### Toolbar Configuration
+
+Customize which buttons appear in the toolbar:
+
+```tsx
+const toolbarConfig: ToolbarConfig = {
+  showBold: true,
+  showItalic: true,
+  showUnderline: true,
+  showStrike: true,
+  showCode: true,
+  showHighlight: true,
+  showLink: true,
+  showImage: true,
+  showHeadings: true,
+  showLists: true,
+  showQuote: true,
+  showCodeBlock: true,
+  showTable: true,
+  showTextAlign: true,
+  showTextColor: true,
+  customButtons: [
+    {
+      name: 'my-button',
+      icon: <MyIcon />,
+      tooltip: 'Custom Action',
+      action: (editor) => {
+        editor.chain().focus().insertContent('Custom!').run()
+      }
+    }
+  ]
 }
-```
 
-### Extensions
-
-#### Presets
-
-```tsx
-import { 
-  MinimalExtensions,
-  BasicExtensions, 
-  RichTextExtensions,
-  FullFeaturedExtensions 
-} from 'react-tiptap-editor'
-
-// Use preset
-<Editor config={{ extensions: RichTextExtensions }} />
-```
-
-#### Custom Extensions
-
-```tsx
-import { 
-  configureStarterKit,
-  configureLinkExtension,
-  mergeExtensions 
-} from 'react-tiptap-editor'
-
-const customExtensions = mergeExtensions(
-  [
-    configureStarterKit({
-      heading: { levels: [1, 2, 3] }
-    }),
-    configureLinkExtension({
-      openOnClick: true
-    })
-  ],
-  [MyCustomExtension]
-)
-
-<Editor config={{ extensions: customExtensions }} />
+<Editor toolbar={toolbarConfig} />
 ```
 
 ### Theming
 
+Customize the editor appearance:
+
 ```tsx
-import { lightTheme, darkTheme } from 'react-tiptap-editor'
-
-// Use built-in themes
-<Editor theme={lightTheme} />
-
-// Custom theme
-const customTheme = {
+const customTheme: EditorTheme = {
   colors: {
-    primary: '#3b82f6',
-    background: '#ffffff',
-    foreground: '#0f172a'
+    primary: '#3B82F6',
+    secondary: '#8B5CF6',
+    background: '#FFFFFF',
+    foreground: '#1F2937',
+    muted: '#F9FAFB',
+    border: '#E5E7EB'
   },
   borderRadius: '0.5rem',
+  spacing: {
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem'
+  },
   typography: {
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: 'Inter, sans-serif',
+    fontSize: '0.875rem',
+    lineHeight: '1.5'
   }
 }
 
 <Editor theme={customTheme} />
 ```
 
-## 🎯 Examples
+## 🎨 Styling
 
-### Minimal Editor
+The editor is styled with Tailwind CSS but designed to be completely customizable:
 
-```tsx
-import { Editor, MinimalExtensions } from 'react-tiptap-editor'
+### CSS Classes
 
-function MinimalEditor() {
-  return (
-    <Editor
-      config={{ extensions: MinimalExtensions }}
-      toolbar={false}
-      bubbleMenu={false}
-      floatingMenu={false}
-      placeholder="Simple editor..."
-    />
-  )
+```css
+/* Main wrapper */
+.dnd-wrapper { /* Drag and drop container */ }
+
+/* Images */
+.image-wrapper { /* Image container with drag handles */ }
+.draggable-image { /* The actual image element */ }
+.image-drag-handle { /* Drag handle overlay */ }
+.image-resize-handle { /* Resize corner handles */ }
+
+/* Editor content */
+.prose { /* TailwindCSS typography */ }
+.editor-link { /* Link styling */ }
+```
+
+### Custom CSS
+
+Add your own styles by overriding the CSS classes:
+
+```css
+.my-editor .draggable-image {
+  border: 2px solid #3B82F6;
+  border-radius: 8px;
+}
+
+.my-editor .image-drag-handle {
+  background: linear-gradient(45deg, #3B82F6, #8B5CF6);
 }
 ```
 
-### Blog Editor
+## 🔧 Advanced Usage
+
+### Custom Extensions
+
+Create your own TipTap extensions and integrate them:
 
 ```tsx
-import { Editor, RichTextExtensions } from 'react-tiptap-editor'
+import { Extension } from '@tiptap/core'
 
-function BlogEditor() {
-  const [content, setContent] = useState('')
+const MyCustomExtension = Extension.create({
+  name: 'myCustomExtension',
   
-  return (
-    <Editor
-      content={content}
-      onChange={setContent}
-      config={{ 
-        extensions: RichTextExtensions,
-        placeholder: "Write your blog post..."
-      }}
-      toolbar={{
-        showHeadings: true,
-        showLists: true,
-        showQuote: true,
-        showImage: true,
-        showLink: true
-      }}
-    />
-  )
-}
-```
-
-### Custom Toolbar
-
-```tsx
-import { Editor, useEditor, Toolbar } from 'react-tiptap-editor'
-
-function CustomEditor() {
-  const { editor } = useEditor()
-  
-  const customButtons = [
-    {
-      name: 'save',
-      icon: <SaveIcon />,
-      action: (editor) => saveContent(editor.getHTML()),
-      tooltip: 'Save content'
+  addCommands() {
+    return {
+      myCommand: (options) => ({ commands }) => {
+        // Your custom logic here
+        return commands.insertContent('Custom content!')
+      }
     }
-  ]
-  
+  }
+})
+
+const extensions = [
+  ...FullFeaturedExtensions,
+  MyCustomExtension
+]
+
+<Editor config={{ extensions }} />
+```
+
+### Custom Components
+
+Replace built-in UI components with your own:
+
+```tsx
+import { EditorContent } from '@tiptap/react'
+import { useEditor, DragAndDropWrapper } from 'react-tiptap-editor'
+
+function MyCustomEditor() {
+  const { editor } = useEditor()
+
   return (
-    <div>
-      <Toolbar 
-        editor={editor}
-        config={{
-          showBold: true,
-          showItalic: true,
-          customButtons
-        }}
-      />
+    <DragAndDropWrapper editor={editor}>
+      <MyCustomToolbar editor={editor} />
       <EditorContent editor={editor} />
+      <MyCustomBubbleMenu editor={editor} />
+    </DragAndDropWrapper>
+  )
+}
+```
+
+### Handling Events
+
+Listen to editor events for custom behavior:
+
+```tsx
+<Editor
+  onUpdate={(editor) => {
+    console.log('Content updated:', editor.getHTML())
+  }}
+  onSelectionUpdate={(editor) => {
+    console.log('Selection changed:', editor.state.selection)
+  }}
+  onFocus={(editor) => {
+    console.log('Editor focused')
+  }}
+  onBlur={(editor) => {
+    console.log('Editor blurred')
+  }}
+/>
+```
+
+## 📚 Examples
+
+### Minimal Blog Editor
+
+```tsx
+import { Editor, BasicExtensions } from 'react-tiptap-editor'
+
+function BlogEditor({ post, onSave }) {
+  return (
+    <div className="max-w-4xl mx-auto">
+      <input 
+        type="text" 
+        placeholder="Post title..."
+        className="w-full text-2xl font-bold mb-4 p-2"
+      />
+      <Editor
+        content={post.content}
+        onChange={(content) => onSave({ ...post, content })}
+        config={{ extensions: BasicExtensions }}
+        placeholder="Tell your story..."
+        className="min-h-[400px]"
+      />
     </div>
   )
 }
 ```
 
-## 🔧 API Reference
-
-### Types
+### Documentation Editor
 
 ```tsx
-interface EditorConfig {
-  placeholder?: string
-  className?: string
-  theme?: 'light' | 'dark' | 'auto'
-  editable?: boolean
-  autofocus?: boolean | 'start' | 'end' | number
-  extensions?: Extension[]
-}
+import { Editor, FullFeaturedExtensions } from 'react-tiptap-editor'
 
-interface EditorCommands {
-  bold: () => boolean
-  italic: () => boolean
-  setLink: (url: string, text?: string) => boolean
-  insertImage: (src: string, alt?: string) => boolean
-  toggleHeading: (level: 1 | 2 | 3 | 4 | 5 | 6) => boolean
-  // ... and many more
-}
-
-interface EditorState {
-  isActive: {
-    bold: boolean
-    italic: boolean
-    heading: (level: number) => boolean
-    // ... and more
-  }
-  canUndo: boolean
-  canRedo: boolean
-  isEmpty: boolean
-  isFocused: boolean
-}
-```
-
-## 🎨 Styling
-
-The editor comes with beautiful default styles, but you can customize everything:
-
-### CSS Variables
-
-```css
-:root {
-  --editor-primary: #3b82f6;
-  --editor-background: #ffffff;
-  --editor-foreground: #0f172a;
-  --editor-border: #e2e8f0;
-  --editor-radius: 0.5rem;
+function DocsEditor() {
+  return (
+    <Editor
+      config={{ 
+        extensions: FullFeaturedExtensions,
+        placeholder: 'Start writing your documentation...'
+      }}
+      toolbar={{
+        showHeadings: true,
+        showTable: true,
+        showCodeBlock: true,
+        showImage: true,
+        customButtons: [
+          {
+            name: 'callout',
+            icon: <InfoIcon />,
+            action: (editor) => {
+              editor.chain().focus().insertContent(
+                '<blockquote><p>💡 Pro tip: This is a callout!</p></blockquote>'
+              ).run()
+            }
+          }
+        ]
+      }}
+    />
+  )
 }
 ```
 
-### Custom Classes
+## 🛠️ Development
 
-```tsx
-<Editor 
-  className="my-editor"
-  config={{
-    className: "my-editor-content"
-  }}
-/>
+### Building the Library
+
+```bash
+# Install dependencies
+npm install
+
+# Build for production
+npm run build
+
+# Run development server
+npm run dev
+
+# Run tests
+npm run test
+
+# Type checking
+npm run type-check
 ```
 
-## 🤝 Contributing
+### Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT © [React TipTap Team](LICENSE)
 
-## 🙏 Acknowledgments
+## 🙋‍♂️ Support
 
-- [TipTap](https://tiptap.dev/) - The amazing editor framework this library is built on
-- [Radix UI](https://www.radix-ui.com/) - For the beautiful UI components
-- [Tailwind CSS](https://tailwindcss.com/) - For the styling system
+- 📖 [Documentation](https://react-tiptap-editor.dev)
+- 🐛 [Issues](https://github.com/react-tiptap-editor/issues)
+- 💬 [Discussions](https://github.com/react-tiptap-editor/discussions)
+- 📧 [Email Support](mailto:support@react-tiptap-editor.dev)
 
-## 📞 Support
+## 🔗 Related Projects
 
-- 📖 [Documentation](https://react-tiptap-editor.vercel.app)
-- 🐛 [Issue Tracker](https://github.com/your-org/react-tiptap-editor/issues)
-- 💬 [Discussions](https://github.com/your-org/react-tiptap-editor/discussions)
-- 🐦 [Twitter](https://twitter.com/react-tiptap-editor)
+- [TipTap](https://tiptap.dev) - The headless editor framework we're built on
+- [Tailwind CSS](https://tailwindcss.com) - Utility-first CSS framework
+- [Radix UI](https://radix-ui.com) - Low-level UI primitives
+- [@dnd-kit](https://dndkit.com) - Drag and drop toolkit
 
 ---
 
-Made with ❤️ by the React TipTap Editor team
+<div align="center">
+  <strong>Built with ❤️ by the React TipTap Editor team</strong>
+</div>

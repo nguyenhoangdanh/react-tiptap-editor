@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import Toolbar from './Toolbar'
 import BubbleMenu from './BubbleMenu'
 import FloatingMenu from './FloatingMenu'
+import { DragAndDropWrapper } from './DragAndDropWrapper'
 import { forwardRef, useImperativeHandle, useEffect } from 'react'
 
 // Define the ref interface for the Editor component
@@ -117,10 +118,13 @@ const EditorComponent = forwardRef<EditorRef, EditorProps>(({
   }
 
   return (
-    <div className={cn(
-      "border border-border rounded-lg overflow-hidden bg-background",
-      className
-    )}>
+    <DragAndDropWrapper
+      editor={editor}
+      className={cn(
+        "border border-border rounded-lg overflow-hidden bg-background",
+        className
+      )}
+    >
       {/* Toolbar */}
       {renderToolbar()}
       
@@ -132,6 +136,8 @@ const EditorComponent = forwardRef<EditorRef, EditorProps>(({
             "prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none",
             "focus-within:outline-none",
             "[&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[200px]",
+            "[&_.image-wrapper]:relative",
+            "[&_.draggable-image]:max-w-full [&_.draggable-image]:h-auto",
             config.className
           )}
         />
@@ -145,7 +151,7 @@ const EditorComponent = forwardRef<EditorRef, EditorProps>(({
       
       {/* Custom children content */}
       {children}
-    </div>
+    </DragAndDropWrapper>
   )
 })
 

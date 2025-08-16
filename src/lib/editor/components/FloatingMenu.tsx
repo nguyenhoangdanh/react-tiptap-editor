@@ -1,4 +1,4 @@
-import { FloatingMenu as TiptapFloatingMenu } from '@tiptap/react'
+import { FloatingMenu as TiptapFloatingMenu } from '@tiptap/react/menus'
 import { Editor } from '@tiptap/react'
 import { Button } from '@/components/ui/button'
 import { 
@@ -94,9 +94,8 @@ export const FloatingMenu = ({ editor, config = {}, className }: FloatingMenuPro
     <TiptapFloatingMenu
       editor={editor}
       shouldShow={shouldShow}
-      tippyOptions={{
-        duration: 100,
-        placement: defaultConfig.placement === 'auto' ? 'left' : defaultConfig.placement,
+      options={{
+        placement: defaultConfig.placement === 'auto' ? 'left' : defaultConfig.placement
       }}
       className={cn(
         "flex flex-col gap-1 p-2 bg-background border border-border rounded-lg shadow-lg backdrop-blur-sm",

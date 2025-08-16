@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
-
+    "strictNullChecks": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -13,37 +18,17 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-
-    "declaration": true,
-    "declarationDir": "./dist/types",
-    "outDir": "./dist",
-
     /* Linting */
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
-    "strictNullChecks": false,
-
-    /* Path mapping */
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*", "./src/*"],
-      "@shared/*": ["./shared/*"]
-    }
+      "@/*": [
+        "src/*"
+      ]
+    },
   },
   "include": [
-    "src/**/*",
-    "server/**/*",
-    "shared/**/*",
-    "src/**/*",
-    "vite.config.ts",
-    "vite.config.server.ts",
-    "vite.config.lib.ts"
-  ],
-  "exclude": ["node_modules", "dist"]
+    "src"
+  ]
 }

@@ -19,20 +19,20 @@ export { CodeBlock } from '@tiptap/extension-code-block'
 export { HorizontalRule } from '@tiptap/extension-horizontal-rule'
 export { Dropcursor } from '@tiptap/extension-dropcursor'
 export { Gapcursor } from '@tiptap/extension-gapcursor'
-export { History } from '@tiptap/extension-history'
+export { Underline } from '@tiptap/extension-underline'
 
-// Export individual extensions from StarterKit for granular control
-export {
-  Document,
-  Paragraph,
-  Text,
-  Bold,
-  Italic,
-  Strike,
-  Code,
-  Heading,
-  HardBreak,
-} from '@tiptap/starter-kit'
+// Individual extensions that work well as standalone imports
+// Note: Some extensions like Document, Paragraph, Text are bundled in StarterKit
+// and may not be available as individual exports
+export { Bold } from '@tiptap/extension-bold'
+export { Italic } from '@tiptap/extension-italic'
+export { Strike } from '@tiptap/extension-strike'
+export { Code } from '@tiptap/extension-code'
+export { Heading } from '@tiptap/extension-heading'
+export { HardBreak } from '@tiptap/extension-hard-break'
+
+// Document, Paragraph, Text are core extensions bundled with StarterKit
+// If you need to customize these, use StarterKit.configure() options instead
 
 // Custom extension configurations
 import StarterKit from '@tiptap/starter-kit'
@@ -47,21 +47,39 @@ import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableCell } from '@tiptap/extension-table-cell'
+import { BulletList } from '@tiptap/extension-bullet-list'
+import { OrderedList } from '@tiptap/extension-ordered-list'
+import { ListItem } from '@tiptap/extension-list-item'
+import { Blockquote } from '@tiptap/extension-blockquote'
+import { CodeBlock } from '@tiptap/extension-code-block'
+import { HorizontalRule } from '@tiptap/extension-horizontal-rule'
+import { Bold } from '@tiptap/extension-bold'
+import { Italic } from '@tiptap/extension-italic'
+import { Strike } from '@tiptap/extension-strike'
+import { Code } from '@tiptap/extension-code'
+import { Heading } from '@tiptap/extension-heading'
+import { Underline } from '@tiptap/extension-underline'
+import { createDraggableImageExtensions } from './draggable-image'
+
+// Import the enhanced drag-and-drop image extensions
+export { 
+  DraggableImage, 
+  EnhancedResizeImage, 
+  DraggableImageCommands,
+  createDraggableImageExtensions 
+} from './draggable-image'
 
 // Extension presets for different use cases
 export const MinimalExtensions = [
   StarterKit.configure({
-    history: false,
   }),
 ]
 
 export const BasicExtensions = [
   StarterKit.configure({
-    history: {
-      depth: 50,
-    },
   }),
   TextStyle,
+  Underline,
   Color.configure({
     types: ['textStyle'],
   }),
@@ -72,14 +90,15 @@ export const BasicExtensions = [
 
 export const RichTextExtensions = [
   StarterKit.configure({
-    history: {
-      depth: 50,
-    },
+    // history: {
+    //   depth: 50,
+    // },
     heading: {
       levels: [1, 2, 3, 4, 5, 6],
     },
   }),
   TextStyle,
+  Underline,
   Color.configure({
     types: ['textStyle'],
   }),
@@ -108,22 +127,42 @@ export const RichTextExtensions = [
 
 export const FullFeaturedExtensions = [
   StarterKit.configure({
-    history: {
-      depth: 50,
-    },
     heading: {
       levels: [1, 2, 3, 4, 5, 6],
     },
     bulletList: {
       keepMarks: true,
       keepAttributes: false,
+      HTMLAttributes: {
+        class: 'tiptap-bullet-list',
+      },
     },
     orderedList: {
       keepMarks: true,
       keepAttributes: false,
+      HTMLAttributes: {
+        class: 'tiptap-ordered-list',
+      },
+    },
+    listItem: {
+      HTMLAttributes: {
+        class: 'tiptap-list-item',
+      },
+    },
+    blockquote: {
+      HTMLAttributes: {
+        class: 'tiptap-blockquote',
+      },
+    },
+    codeBlock: {
+      HTMLAttributes: {
+        class: 'tiptap-code-block',
+      },
     },
   }),
+  // Additional extensions not included in StarterKit
   TextStyle,
+  Underline,
   Color.configure({
     types: ['textStyle'],
   }),
@@ -145,11 +184,17 @@ export const FullFeaturedExtensions = [
     },
     validate: href => /^https?:\/\//.test(href),
   }),
-  Image.configure({
-    HTMLAttributes: {
-      class: 'editor-image',
-    },
+  // Use enhanced draggable image extensions instead of basic Image
+  ...createDraggableImageExtensions({
+    allowDrag: true,
     allowBase64: true,
+    textWrapMode: 'css',
+    alignmentOptions: ['left', 'center', 'right', 'inline'],
+    maintainAspectRatio: true,
+    maxWidth: 800,
+    maxHeight: 600,
+    minWidth: 50,
+    minHeight: 50,
   }),
   Table.configure({
     resizable: true,
@@ -158,6 +203,7 @@ export const FullFeaturedExtensions = [
   TableRow,
   TableHeader,
   TableCell,
+  HorizontalRule,
 ]
 
 // Utility function to create custom extension sets

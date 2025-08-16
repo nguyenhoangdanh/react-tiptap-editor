@@ -157,11 +157,24 @@ export const insertImage = (
   src: string, 
   alt?: string, 
   width?: number, 
-  height?: number
+  height?: number,
+  alignment: 'left' | 'center' | 'right' | 'inline' = 'inline'
 ): boolean => {
   if (!editor) return false
   
   try {
+    // Use the enhanced draggable image command if available
+    if (editor.commands.insertDraggableImage) {
+      return editor.commands.insertDraggableImage({
+        src,
+        alt,
+        width,
+        height,
+        alignment,
+      })
+    }
+    
+    // Fallback to regular image
     const attributes: any = { src }
     if (alt) attributes.alt = alt
     if (width) attributes.width = width
@@ -170,6 +183,113 @@ export const insertImage = (
     return editor.chain().focus().setImage(attributes).run()
   } catch (error) {
     console.warn(`Failed to insert image: ${src}`, error)
+    return false
+  }
+}
+
+// New utility for drag-and-drop image insertion
+export const insertDraggableImage = (
+  editor: Editor | null,
+  src: string,
+  options: {
+    alt?: string
+    width?: number
+    height?: number
+    alignment?: 'left' | 'center' | 'right' | 'inline'
+  } = {}
+): boolean => {
+  if (!editor) return false
+  
+  try {
+    return editor.commands.insertDraggableImage({
+      src,
+      alt: options.alt || '',
+      width: options.width,
+      height: options.height,
+      alignment: options.alignment || 'inline',
+    })
+  } catch (error) {
+    console.warn(`Failed to insert draggable image: ${src}`, error)
+    return false
+  }
+}
+
+// Update image alignment
+export const updateImageAlignment = (
+  editor: Editor | null,
+  alignment: 'left' | 'center' | 'right' | 'inline'
+): boolean => {
+  if (!editor) return false
+  
+  try {
+    return editor.commands.updateImageAlignment(alignment)
+  } catch (error) {
+    console.warn(`Failed to update image alignment: ${alignment}`, error)
+    return false
+  }
+}
+
+// Handle file drop for images
+export const handleImageDrop = async (
+  editor: Editor | null,
+  files: FileList | File[],
+  options: {
+    maxSize?: number // in bytes
+    allowedTypes?: string[]
+    alignment?: 'left' | 'center' | 'right' | 'inline'
+    onUpload?: (file: File) => Promise<string> // Custom upload handler
+  } = {}
+): Promise<boolean> => {
+  if (!editor) return false
+  
+  const {
+    maxSize = 5 * 1024 * 1024, // 5MB default
+    allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+    alignment = 'inline',
+    onUpload,
+  } = options
+  
+  try {
+    const fileArray = Array.from(files)
+    
+    for (const file of fileArray) {
+      // Validate file type
+      if (!allowedTypes.includes(file.type)) {
+        console.warn(`File type ${file.type} not allowed`)
+        continue
+      }
+      
+      // Validate file size
+      if (file.size > maxSize) {
+        console.warn(`File size ${file.size} exceeds maximum ${maxSize}`)
+        continue
+      }
+      
+      let imageSrc: string
+      
+      if (onUpload) {
+        // Use custom upload handler
+        imageSrc = await onUpload(file)
+      } else {
+        // Convert to base64 for local use
+        imageSrc = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+      }
+      
+      // Insert the image
+      insertDraggableImage(editor, imageSrc, {
+        alt: file.name,
+        alignment,
+      })
+    }
+    
+    return true
+  } catch (error) {
+    console.warn('Failed to handle image drop:', error)
     return false
   }
 }
@@ -306,4 +426,51 @@ export const exportToText = (editor: Editor | null): string => {
 export const exportToJSON = (editor: Editor | null): any => {
   if (!editor) return null
   return editor.getJSON()
+}
+
+// File handling utilities
+export const createImageUploadHandler = (
+  uploadFunction: (file: File) => Promise<string>
+) => {
+  return async (files: FileList | File[]) => {
+    const promises = Array.from(files).map(uploadFunction)
+    return Promise.all(promises)
+  }
+}
+
+// Image dimension utilities
+export const getImageDimensions = (src: string): Promise<{ width: number; height: number }> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      resolve({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      })
+    }
+    img.onerror = reject
+    img.src = src
+  })
+}
+
+// Calculate responsive image dimensions
+export const calculateResponsiveDimensions = (
+  originalWidth: number,
+  originalHeight: number,
+  maxWidth: number,
+  maxHeight?: number
+) => {
+  const aspectRatio = originalWidth / originalHeight
+  let width = Math.min(originalWidth, maxWidth)
+  let height = width / aspectRatio
+  
+  if (maxHeight && height > maxHeight) {
+    height = maxHeight
+    width = height * aspectRatio
+  }
+  
+  return {
+    width: Math.round(width),
+    height: Math.round(height),
+  }
 }

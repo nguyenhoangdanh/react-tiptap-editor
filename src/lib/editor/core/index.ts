@@ -6,29 +6,48 @@ import { Highlight } from '@tiptap/extension-highlight'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { FontFamily } from '@tiptap/extension-font-family'
 import { Link } from '@tiptap/extension-link'
-import { Image } from '@tiptap/extension-image'
 import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableCell } from '@tiptap/extension-table-cell'
+import { Underline } from '@tiptap/extension-underline'
+import { createDraggableImageExtensions } from '../extensions/draggable-image'
 import { EditorConfig } from '../types'
 
 // Default extensions that can be overridden
 export const createDefaultExtensions = (config?: EditorConfig) => [
   StarterKit.configure({
-    history: {
-      depth: 50,
-    },
     heading: {
       levels: [1, 2, 3, 4, 5, 6],
     },
     bulletList: {
       keepMarks: true,
       keepAttributes: false,
+      HTMLAttributes: {
+        class: 'tiptap-bullet-list',
+      },
     },
     orderedList: {
       keepMarks: true,
       keepAttributes: false,
+      HTMLAttributes: {
+        class: 'tiptap-ordered-list',
+      },
+    },
+    listItem: {
+      HTMLAttributes: {
+        class: 'tiptap-list-item',
+      },
+    },
+    blockquote: {
+      HTMLAttributes: {
+        class: 'tiptap-blockquote',
+      },
+    },
+    codeBlock: {
+      HTMLAttributes: {
+        class: 'tiptap-code-block',
+      },
     },
   }),
   TextStyle,
@@ -46,6 +65,7 @@ export const createDefaultExtensions = (config?: EditorConfig) => [
   FontFamily.configure({
     types: ['textStyle'],
   }),
+  Underline,
   Link.configure({
     openOnClick: false,
     HTMLAttributes: {
@@ -53,11 +73,17 @@ export const createDefaultExtensions = (config?: EditorConfig) => [
     },
     validate: href => /^https?:\/\//.test(href),
   }),
-  Image.configure({
-    HTMLAttributes: {
-      class: 'editor-image',
-    },
+  // Enhanced draggable image extensions
+  ...createDraggableImageExtensions({
+    allowDrag: true,
     allowBase64: true,
+    textWrapMode: 'css',
+    alignmentOptions: ['left', 'center', 'right', 'inline'],
+    maintainAspectRatio: true,
+    maxWidth: 800,
+    maxHeight: 600,
+    minWidth: 50,
+    minHeight: 50,
   }),
   Table.configure({
     resizable: true,
@@ -77,9 +103,9 @@ export const createEditorConfig = (
   onSelectionUpdate?: (editor: any) => void,
   onFocus?: (editor: any) => void,
   onBlur?: (editor: any) => void
-): EditorOptions => {
-  const defaultConfig: EditorOptions = {
-    extensions: createDefaultExtensions(config),
+): EditorConfig => {
+  const defaultConfig: EditorConfig = {
+    extensions: config.extensions || createDefaultExtensions(config),
     content,
     editable: config.editable !== false,
     autofocus: config.autofocus || false,
@@ -106,6 +132,13 @@ export const createEditorConfig = (
           return true
         }
         return false
+      },
+      // Improve click handling to prevent focus issues
+      handleClick: (view, pos, event) => {
+        return false // Allow default behavior
+      },
+      handleDoubleClick: (view, pos, event) => {
+        return false // Allow default behavior
       },
     },
     onUpdate: ({ editor }) => {
@@ -164,4 +197,4 @@ export const useEditorCore = (
 }
 
 export * from '@tiptap/react'
-export { StarterKit, Color, TextStyle, Highlight, TextAlign, FontFamily, Link, Image, Table, TableRow, TableHeader, TableCell }
+export { StarterKit, Color, TextStyle, Highlight, TextAlign, FontFamily, Link, Table, TableRow, TableHeader, TableCell, Underline }

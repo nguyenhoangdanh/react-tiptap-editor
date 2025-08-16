@@ -1,585 +1,471 @@
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import React, { useState } from 'react'
+import {
+  Editor,
+  Toolbar,
+  BubbleMenu,
+  FloatingMenu,
+  useEditor,
+  FullFeaturedExtensions,
+  BasicExtensions,
+  MinimalExtensions,
+  handleImageDrop,
+  insertDraggableImage,
+} from '@/lib/editor'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  Code, 
-  Copy, 
-  Github, 
-  Star, 
-  Download, 
-  FileText, 
-  Palette, 
-  Zap, 
-  Settings, 
-  Layers,
-  ChevronRight,
-  CheckCircle2,
-} from 'lucide-react'
-import { Editor } from '@/lib/editor'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
+import {
+  CodeBracketIcon,
+  ClipboardDocumentIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  SparklesIcon,
+  BookOpenIcon,
+  SwatchIcon,
+  PhotoIcon,
+} from '@heroicons/react/24/outline'
 
-const HomePage = () => {
-  const [basicContent, setBasicContent] = useState('<p>Try editing this text...</p>')
-  const [richContent, setRichContent] = useState(`
-    <h1>Welcome to React TipTap Editor</h1>
-    <p>This is a <strong>powerful</strong> and <em>flexible</em> rich text editor built with TipTap and React.</p>
-    <ul>
-      <li>Full TypeScript support</li>
-      <li>Customizable UI components</li>
-      <li>Extensible architecture</li>
-    </ul>
-    <blockquote>
-      <p>"The best editor library for React applications" - Happy Developer</p>
-    </blockquote>
-  `)
+const SAMPLE_CONTENT = `
+<h1>Welcome to React TipTap Editor</h1>
+<p>This is a <strong>comprehensive</strong> and <em>fully customizable</em> rich text editor built on top of <a href="https://tiptap.dev" target="_blank">TipTap</a>.</p>
+<h2>✨ Features</h2>
+<ul>
+  <li><strong>Drag-and-Drop Images</strong> - Upload and position images anywhere</li>
+  <li><strong>Resizable Images</strong> - Click and drag handles to resize</li>
+  <li><strong>Text Wrapping</strong> - Images flow naturally with text content</li>
+  <li><strong>Full Extensibility</strong> - Override any component or behavior</li>
+  <li><strong>TypeScript Support</strong> - Complete type safety</li>
+</ul>
+<blockquote>
+  <p>Try dragging the sample image below to different positions and watch the text reflow!</p>
+</blockquote>
+<p>You can also try <mark>highlighting text</mark>, adding <a href="#">links</a>, and formatting content with the toolbar above.</p>
+<h3>Code Examples</h3>
+<pre><code>// Simple usage
+import { Editor } from 'react-tiptap-editor'
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success('Copied to clipboard!')
+function MyApp() {
+  return (
+    &lt;Editor
+      content="Start writing..."
+      onChange={(html) => console.log(html)}
+    /&gt;
+  )
+}</code></pre>
+`
+
+export default function EditorDemo() {
+  const [content, setContent] = useState(SAMPLE_CONTENT)
+  const [preset, setPreset] = useState<'minimal' | 'basic' | 'full'>('full')
+  const [showJSON, setShowJSON] = useState(false)
+
+  // Create single editor instance based on current preset
+  const getExtensions = () => {
+    switch (preset) {
+      case 'minimal': return MinimalExtensions
+      case 'basic': return BasicExtensions
+      case 'full': return FullFeaturedExtensions
+      default: return FullFeaturedExtensions
+    }
   }
 
-  const features = [
-    {
-      icon: <Zap className="h-6 w-6" />,
-      title: "Lightning Fast",
-      description: "Built on TipTap's performant core with optimized React components"
-    },
-    {
-      icon: <Settings className="h-6 w-6" />,
-      title: "Fully Customizable",
-      description: "Override any component, extension, or behavior to match your needs"
-    },
-    {
-      icon: <Layers className="h-6 w-6" />,
-      title: "Extensible Architecture",
-      description: "Add custom extensions, commands, and UI components easily"
-    },
-    {
-      icon: <Palette className="h-6 w-6" />,
-      title: "Beautiful UI",
-      description: "Modern design with dark mode support and customizable themes"
-    },
-    {
-      icon: <FileText className="h-6 w-6" />,
-      title: "TypeScript First",
-      description: "Complete type safety with comprehensive TypeScript definitions"
-    },
-    {
-      icon: <Code className="h-6 w-6" />,
-      title: "Developer Friendly",
-      description: "Intuitive API with excellent documentation and examples"
+  const { editor } = useEditor(
+    content,
+    { extensions: getExtensions() },
+    setContent
+  )
+
+  const getCurrentEditor = () => {
+    return editor
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files || files.length === 0) return
+
+    const editor = getCurrentEditor()
+    if (!editor) return
+
+    try {
+      await handleImageDrop(editor, files, {
+        alignment: 'center',
+        maxSize: 10 * 1024 * 1024, // 10MB
+        onUpload: async (file: File) => {
+          // In a real app, you'd upload to your server
+          // For demo, we'll use base64
+          return new Promise((resolve) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.readAsDataURL(file)
+          })
+        }
+      })
+
+      toast.success('Image uploaded successfully!')
+    } catch (error) {
+      toast.error('Failed to upload image')
     }
-  ]
+  }
 
-  const installationCode = `npm install react-tiptap-editor
+  const addSampleImage = () => {
+    const editor = getCurrentEditor()
+    if (!editor) return
 
-# or with yarn
-yarn add react-tiptap-editor
+    insertDraggableImage(editor, 'https://picsum.photos/400/300', {
+      alt: 'Sample image',
+      alignment: 'right',
+      width: 300,
+      height: 225,
+    })
 
-# or with pnpm
-pnpm add react-tiptap-editor`
+    toast.success('Sample image added!')
+  }
 
-  const basicUsageCode = `import { Editor, useEditor } from 'react-tiptap-editor'
+  const exportContent = (format: 'html' | 'json' | 'text') => {
+    const editor = getCurrentEditor()
+    if (!editor) return
 
-function MyEditor() {
-  const [content, setContent] = useState('')
-  
-  return (
-    <Editor
-      content={content}
-      onChange={setContent}
-      placeholder="Start writing..."
-    />
-  )
-}`
+    let exportedContent: string
+    let filename: string
 
-  const advancedUsageCode = `import { 
-  Editor, 
-  useEditor, 
-  Toolbar, 
-  BubbleMenu,
-  createRichTextEditor 
-} from 'react-tiptap-editor'
+    switch (format) {
+      case 'json':
+        exportedContent = JSON.stringify(editor.getJSON(), null, 2)
+        filename = 'editor-content.json'
+        break
+      case 'text':
+        exportedContent = editor.getText()
+        filename = 'editor-content.txt'
+        break
+      case 'html':
+      default:
+        exportedContent = editor.getHTML()
+        filename = 'editor-content.html'
+        break
+    }
 
-function AdvancedEditor() {
-  const { editor, commands, state } = useEditor(
-    initialContent,
-    {
-      extensions: createRichTextEditor(),
-      placeholder: "Tell your story...",
-      autofocus: true
-    },
-    handleChange
-  )
-  
-  return (
-    <Editor
-      editor={editor}
-      toolbar={{
-        showBold: true,
-        showItalic: true,
-        showLink: true,
-        customButtons: [myCustomButton]
-      }}
-      bubbleMenu={{ enabled: true }}
-      floatingMenu={{ enabled: true }}
-    />
-  )
-}`
+    // Create and download file
+    const blob = new Blob([exportedContent], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
 
-  const customizationCode = `import { 
-  Editor,
-  configureStarterKit,
-  configureLinkExtension,
-  lightTheme 
-} from 'react-tiptap-editor'
+    toast.success(`Content exported as ${format.toUpperCase()}!`)
+  }
 
-const customExtensions = [
-  configureStarterKit({
-    heading: { levels: [1, 2, 3] }
-  }),
-  configureLinkExtension({
-    openOnClick: true,
-    validate: (url) => isValidUrl(url)
-  }),
-  MyCustomExtension
-]
+  const copyToClipboard = async (format: 'html' | 'json') => {
+    const editor = getCurrentEditor()
+    if (!editor) return
 
-function CustomEditor() {
-  return (
-    <Editor
-      config={{ 
-        extensions: customExtensions,
-        placeholder: "Custom placeholder..."
-      }}
-      theme={lightTheme}
-      toolbar={{
-        customButtons: [
-          {
-            name: 'custom',
-            icon: <MyIcon />,
-            action: (editor) => editor.chain().focus().run(),
-            tooltip: 'My custom action'
-          }
-        ]
-      }}
-    />
-  )
-}`
+    const content = format === 'json'
+      ? JSON.stringify(editor.getJSON(), null, 2)
+      : editor.getHTML()
+
+    try {
+      await navigator.clipboard.writeText(content)
+      toast.success(`${format.toUpperCase()} copied to clipboard!`)
+    } catch {
+      toast.error('Failed to copy to clipboard')
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                <Star className="h-4 w-4 mr-2" />
-                React TipTap Editor v1.0.0
-              </Badge>
-              <h1 className="text-5xl md:text-7xl font-bold text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Build Amazing
-                <br />
-                Rich Text Editors
-              </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                A fully customizable and extensible React editor library built on TipTap. 
-                TypeScript-first, beautiful UI, and endless possibilities.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 py-4 h-auto btn-gradient">
-                <Download className="h-5 w-5 mr-2" />
-                Get Started
-              </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto">
-                <Github className="h-5 w-5 mr-2" />
-                View on GitHub
-              </Button>
-              <Button variant="ghost" size="lg" className="text-lg px-8 py-4 h-auto">
-                <FileText className="h-5 w-5 mr-2" />
-                Documentation
-              </Button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-2">
+            <SparklesIcon className="w-8 h-8 text-primary" />
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              React TipTap Editor
+            </h1>
+          </div>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            A fully customizable and extensible React editor with drag-and-drop images,
+            complete TypeScript support, and modern UI components.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Badge variant="secondary">
+              <BookOpenIcon className="w-3.5 h-3.5 mr-1" />
+              TipTap Core
+            </Badge>
+            <Badge variant="secondary">
+              <SwatchIcon className="w-3.5 h-3.5 mr-1" />
+              Tailwind CSS
+            </Badge>
+            <Badge variant="secondary">
+              <PhotoIcon className="w-3.5 h-3.5 mr-1" />
+              Drag & Drop
+            </Badge>
+            <Badge variant="secondary">
+              <CodeBracketIcon className="w-3.5 h-3.5 mr-1" />
+              TypeScript
+            </Badge>
           </div>
         </div>
-      </section>
 
-      {/* Live Demo Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-foreground mb-4">
-              See It In Action
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Try the editor yourself - no setup required
-            </p>
+        {/* Controls */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ArrowUpTrayIcon className="w-5 h-5" />
+              Editor Controls
+            </CardTitle>
+            <CardDescription>
+              Try different presets, upload images, and export your content
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Preset Selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Preset:</span>
+                <Tabs value={preset} onValueChange={(value) => setPreset(value as any)}>
+                  <TabsList>
+                    <TabsTrigger value="minimal">Minimal</TabsTrigger>
+                    <TabsTrigger value="basic">Basic</TabsTrigger>
+                    <TabsTrigger value="full">Full</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              <Separator orientation="vertical" className="h-8" />
+
+              {/* Image Actions */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="image-upload"
+                  multiple
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('image-upload')?.click()}
+                >
+                  <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
+                  Upload Image
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addSampleImage}
+                >
+                  <PhotoIcon className="w-4 h-4 mr-2" />
+                  Add Sample
+                </Button>
+              </div>
+
+              <Separator orientation="vertical" className="h-8" />
+
+              {/* Export Actions */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => exportContent('html')}
+                >
+                  <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
+                  Export HTML
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard('html')}
+                >
+                  <ClipboardDocumentIcon className="w-4 h-4 mr-2" />
+                  Copy HTML
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowJSON(!showJSON)}
+                >
+                  <CodeBracketIcon className="w-4 h-4 mr-2" />
+                  {showJSON ? 'Hide' : 'Show'} JSON
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Editor */}
+          <div className="lg:col-span-2 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Live Editor ({preset})</CardTitle>
+                <CardDescription>
+                  {preset === 'full' && "Full-featured editor with all extensions enabled"}
+                  {preset === 'basic' && "Basic editor with essential formatting tools"}
+                  {preset === 'minimal' && "Minimal editor with just text formatting"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Editor
+                  key={preset} // Force recreation when preset changes
+                  content={content}
+                  onChange={setContent}
+                  config={{
+                    extensions: getExtensions(),
+                    placeholder: `Start writing something amazing...`,
+                    className: 'p-6',
+                  }}
+                  toolbar={preset !== 'minimal'}
+                  bubbleMenu={preset !== 'minimal'}
+                  floatingMenu={preset === 'full'}
+                  className="min-h-[600px]"
+                />
+              </CardContent>
+            </Card>
           </div>
 
-          <Tabs defaultValue="basic" className="space-y-8">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-12">
-              <TabsTrigger value="basic" className="text-base">Basic Editor</TabsTrigger>
-              <TabsTrigger value="rich" className="text-base">Rich Text Editor</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="basic" className="space-y-4">
-              <Card className="card-gradient">
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* JSON Output */}
+            {showJSON && (
+              <Card>
                 <CardHeader>
-                  <CardTitle>Basic Editor</CardTitle>
+                  <CardTitle className="text-lg">JSON Output</CardTitle>
                   <CardDescription>
-                    Simple setup with essential features
+                    Real-time JSON representation of your content
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <Editor
-                    content={basicContent}
-                    onChange={setBasicContent}
-                    config={{
-                      placeholder: "Start typing here...",
-                      autofocus: false
-                    }}
-                    toolbar={{
-                      showBold: true,
-                      showItalic: true,
-                      showUnderline: true,
-                      showStrike: true,
-                      showCode: true,
-                      showLink: true,
-                      showHeadings: false,
-                      showLists: true,
-                      showQuote: false,
-                      showCodeBlock: false,
-                      showTable: false,
-                      showTextAlign: false,
-                      showTextColor: false
-                    }}
-                    className="min-h-[200px]"
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="rich" className="space-y-4">
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle>Rich Text Editor</CardTitle>
-                  <CardDescription>
-                    Full-featured editor with all tools
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Editor
-                    content={richContent}
-                    onChange={setRichContent}
-                    config={{
-                      placeholder: "Create something amazing...",
-                      autofocus: false
-                    }}
-                    className="min-h-[300px]"
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">
-              Why Choose React TipTap Editor?
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Built for developers who need flexibility without sacrificing ease of use
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="card-gradient hover:shadow-lg transition-all duration-300 border-0">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
-                    {feature.icon}
-                  </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
-                </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center leading-relaxed">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Code Examples Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">
-              Simple to Use, Powerful to Customize
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Get started in minutes, customize for years
-            </p>
-          </div>
-
-          <Tabs defaultValue="installation" className="space-y-8">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 h-12">
-              <TabsTrigger value="installation">Install</TabsTrigger>
-              <TabsTrigger value="basic">Basic</TabsTrigger>
-              <TabsTrigger value="advanced">Advanced</TabsTrigger>
-              <TabsTrigger value="custom">Custom</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="installation">
-              <Card className="card-gradient">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Installation</CardTitle>
-                    <CardDescription>Add to your project with your favorite package manager</CardDescription>
-                  </div>
+                  <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-64">
+                    <code>
+                      {editor ?
+                        JSON.stringify(editor.getJSON(), null, 2) :
+                        'Loading...'
+                      }
+                    </code>
+                  </pre>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => copyToClipboard('npm install react-tiptap-editor')}
+                    className="mt-2 w-full"
+                    onClick={() => copyToClipboard('json')}
                   >
-                    <Copy className="h-4 w-4" />
+                    <ClipboardDocumentIcon className="w-3.5 h-3.5 mr-2" />
+                    Copy JSON
                   </Button>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-slate-900 text-slate-100 p-6 rounded-lg overflow-x-auto text-sm">
-                    <code>{installationCode}</code>
-                  </pre>
                 </CardContent>
               </Card>
-            </TabsContent>
-            
-            <TabsContent value="basic">
-              <Card className="card-gradient">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Basic Usage</CardTitle>
-                    <CardDescription>Get started with just a few lines of code</CardDescription>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(basicUsageCode)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-slate-900 text-slate-100 p-6 rounded-lg overflow-x-auto text-sm">
-                    <code>{basicUsageCode}</code>
-                  </pre>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="advanced">
-              <Card className="card-gradient">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Advanced Usage</CardTitle>
-                    <CardDescription>Use hooks for more control and customization</CardDescription>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(advancedUsageCode)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-slate-900 text-slate-100 p-6 rounded-lg overflow-x-auto text-sm">
-                    <code>{advancedUsageCode}</code>
-                  </pre>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="custom">
-              <Card className="card-gradient">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Full Customization</CardTitle>
-                    <CardDescription>Complete control over extensions, themes, and behavior</CardDescription>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(customizationCode)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-slate-900 text-slate-100 p-6 rounded-lg overflow-x-auto text-sm">
-                    <code>{customizationCode}</code>
-                  </pre>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
+            )}
 
-      {/* Benefits Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-4xl font-bold text-foreground mb-6">
-                  Everything You Need
-                </h2>
-                <p className="text-xl text-muted-foreground leading-relaxed">
-                  From simple text editing to complex document creation, 
-                  our library scales with your needs.
-                </p>
-              </div>
-              
-              <div className="space-y-6">
-                {[
-                  "Complete TypeScript support with full type safety",
-                  "Modular architecture - use only what you need", 
-                  "Custom extensions and commands",
-                  "Theming system with dark mode support",
-                  "Accessibility built-in",
-                  "Production-ready with comprehensive testing"
-                ].map((benefit, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0" />
-                    <span className="text-lg text-foreground">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-              
-              <Button size="lg" className="btn-gradient">
-                Get Started Today
-                <ChevronRight className="h-5 w-5 ml-2" />
-              </Button>
-            </div>
-            
-            <div className="relative">
-              <Card className="card-gradient p-8">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-semibold">API Reference</h3>
-                    <Badge variant="secondary">v1.0.0</Badge>
-                  </div>
-                  <div className="space-y-3 text-sm font-mono">
-                    <div className="text-blue-600 dark:text-blue-400">
-                      import {'{ Editor, useEditor }'} from 'react-tiptap-editor'
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      // Hooks
-                    </div>
-                    <div className="text-green-600 dark:text-green-400">
-                      useEditor(), useEditorCommands(), useEditorState()
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      // Components  
-                    </div>
-                    <div className="text-purple-600 dark:text-purple-400">
-                      Toolbar, BubbleMenu, FloatingMenu
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      // Extensions
-                    </div>
-                    <div className="text-orange-600 dark:text-orange-400">
-                      StarterKit, Link, Image, Table, ...
-                    </div>
-                  </div>
+            {/* Usage Examples */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Quick Start</CardTitle>
+                <CardDescription>
+                  Get started with the React TipTap Editor
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2">1. Install</h4>
+                  <code className="text-xs bg-muted p-2 rounded block">
+                    npm install react-tiptap-editor
+                  </code>
                 </div>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="space-y-8">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-              Ready to Build Something Amazing?
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of developers who have chosen React TipTap Editor 
-              for their text editing needs.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" className="text-lg px-12 py-6 h-auto btn-gradient">
-                <Download className="h-5 w-5 mr-2" />
-                Start Building
-              </Button>
-              <Button variant="outline" size="lg" className="text-lg px-12 py-6 h-auto">
-                <Github className="h-5 w-5 mr-2" />
-                Star on GitHub
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+                <div>
+                  <h4 className="font-medium mb-2">2. Basic Usage</h4>
+                  <pre className="text-xs bg-muted p-2 rounded overflow-auto">
+                    <code>{`import { Editor } from 'react-tiptap-editor'
 
-      {/* Footer */}
-      <footer className="border-t bg-muted/30 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">React TipTap Editor</h3>
-              <p className="text-muted-foreground">
-                The most flexible and powerful rich text editor for React applications.
-              </p>
-            </div>
-            <div className="space-y-4">
-              <h4 className="font-semibold">Documentation</h4>
-              <div className="space-y-2 text-sm">
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Getting Started</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">API Reference</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Examples</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Migration Guide</div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h4 className="font-semibold">Community</h4>
-              <div className="space-y-2 text-sm">
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">GitHub</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Discord</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Twitter</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Discussions</div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h4 className="font-semibold">Resources</h4>
-              <div className="space-y-2 text-sm">
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Changelog</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Roadmap</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">Contributing</div>
-                <div className="text-muted-foreground hover:text-foreground cursor-pointer">License</div>
-              </div>
-            </div>
-          </div>
-          <div className="border-t mt-12 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 React TipTap Editor. Released under the MIT License.</p>
+function App() {
+  return (
+    <Editor
+      content="Hello world!"
+      onChange={(html) => console.log(html)}
+    />
+  )
+}`}</code>
+                  </pre>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-2">3. With Drag & Drop</h4>
+                  <pre className="text-xs bg-muted p-2 rounded overflow-auto">
+                    <code>{`import { 
+  Editor, 
+  handleImageDrop 
+} from 'react-tiptap-editor'
+
+function App() {
+  const handleDrop = (editor, files) => {
+    handleImageDrop(editor, files, {
+      onUpload: async (file) => {
+        // Upload to your server
+        return uploadFile(file)
+      }
+    })
+  }
+  
+  return <Editor onImageDrop={handleDrop} />
+}`}</code>
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Features List */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Features</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    Drag & Drop Images
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    Resizable Images
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    Text Wrapping
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    Custom Extensions
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    TypeScript Support
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    Customizable UI
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    Multiple Presets
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    Export Options
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   )
 }
-
-export default HomePage

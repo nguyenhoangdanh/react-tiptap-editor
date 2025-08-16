@@ -1,7 +1,8 @@
-import { Editor as TiptapEditor, EditorOptions } from '@tiptap/react'
+import { Editor as TiptapEditor, EditorOptions, Extensions } from '@tiptap/react'
 import { ReactNode } from 'react'
 
 export interface EditorConfig extends Partial<EditorOptions> {
+  extensions?: Extensions;
   placeholder?: string
   className?: string
   theme?: 'light' | 'dark' | 'auto'

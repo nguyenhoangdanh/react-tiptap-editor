@@ -1,11 +1,17 @@
+import { BasicExtensions, FullFeaturedExtensions, MinimalExtensions, RichTextExtensions } from './extensions'
+import { useEditor } from './hooks'
+import { BubbleMenuConfig, EditorConfig, EditorTheme, FloatingMenuConfig, ToolbarConfig } from './types'
+
 // Main Editor component and ref interface
-export { Editor, EditorRef } from './components/Editor'
+export { Editor } from './components/Editor'
 export { default as EditorComponent } from './components/Editor'
 
 // UI Components
 export { Toolbar } from './components/Toolbar'
 export { BubbleMenu } from './components/BubbleMenu'
 export { FloatingMenu } from './components/FloatingMenu'
+export { DragAndDropWrapper } from './components/DragAndDropWrapper'
+export { DraggableImage } from './components/DraggableImage'
 
 // Hooks
 export {
@@ -46,12 +52,8 @@ export {
   HorizontalRule,
   Dropcursor,
   Gapcursor,
-  History,
   
-  // Individual StarterKit extensions
-  Document,
-  Paragraph,
-  Text,
+  // Individual StarterKit extensions (available as separate packages)
   Bold,
   Italic,
   Strike,
@@ -96,6 +98,9 @@ export {
   
   // Image utilities
   insertImage,
+  insertDraggableImage,
+  updateImageAlignment,
+  handleImageDrop,
   
   // Table utilities
   insertTable,
@@ -117,6 +122,11 @@ export {
   exportToHTML,
   exportToText,
   exportToJSON,
+  
+  // File handling utilities
+  createImageUploadHandler,
+  getImageDimensions,
+  calculateResponsiveDimensions,
 } from './utils'
 
 // TypeScript types

@@ -1,26 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Editor } from '@tiptap/react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { 
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Strikethrough, 
-  Code, 
+import {
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Code,
   Highlighter,
   Link as LinkIcon,
   Image as ImageIcon,
@@ -54,6 +54,41 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
   const [imageUrl, setImageUrl] = useState('')
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false)
   const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false)
+
+  // Track selection changes to update button states
+  const [, setSelectionUpdate] = useState(0)
+
+  useEffect(() => {
+    if (!editor) return
+
+    const updateSelection = () => {
+      setSelectionUpdate(prev => prev + 1)
+    }
+
+    // Listen to all relevant events that could change button states
+    editor.on('selectionUpdate', updateSelection)
+    editor.on('transaction', updateSelection)
+    editor.on('update', updateSelection)
+    editor.on('focus', updateSelection)
+
+    return () => {
+      editor.off('selectionUpdate', updateSelection)
+      editor.off('transaction', updateSelection)
+      editor.off('update', updateSelection)
+      editor.off('focus', updateSelection)
+    }
+  }, [editor])
+
+  // Force re-render when editor state changes
+  const isActive = (name: string, attributes?: Record<string, any>) => {
+    return editor?.isActive(name, attributes) || false
+  }
+
+  const canExecute = (command: string) => {
+    if (!editor?.can) return false
+    const chainCommands = editor.can()
+    return typeof (chainCommands as any)[command] === 'function' ? (chainCommands as any)[command]() : false
+  }
 
   if (!editor) return null
 
@@ -98,13 +133,13 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
     }
   }
 
-  const ToolbarButton = ({ 
-    onClick, 
-    isActive, 
-    disabled, 
-    children, 
-    tooltip 
-  }: { 
+  const ToolbarButton = ({
+    onClick,
+    isActive,
+    disabled,
+    children,
+    tooltip
+  }: {
     onClick: () => void
     isActive?: boolean
     disabled?: boolean
@@ -112,19 +147,47 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
     tooltip?: string
   }) => (
     <Button
+      onMouseDown={(e) => {
+        e.preventDefault() // Prevent focus loss from editor
+      }}
       onClick={onClick}
       disabled={disabled}
       variant={isActive ? "default" : "ghost"}
       size="sm"
       className={cn(
         "h-8 w-8 p-0",
-        isActive && "bg-primary text-primary-foreground"
+        isActive && "bg-primary text-primary-foreground shadow-sm"
       )}
       title={tooltip}
     >
       {children}
     </Button>
   )
+
+  const getCurrentTextAlign = () => {
+    if (!editor) return 'left'
+    if (editor.isActive({ textAlign: 'center' })) return 'center'
+    if (editor.isActive({ textAlign: 'right' })) return 'right'
+    if (editor.isActive({ textAlign: 'justify' })) return 'justify'
+    return 'left'
+  }
+
+  // Get current heading level for display
+  const getCurrentHeadingLevel = () => {
+    if (isActive('heading', { level: 1 })) return 'h1'
+    if (isActive('heading', { level: 2 })) return 'h2'
+    if (isActive('heading', { level: 3 })) return 'h3'
+    if (isActive('heading', { level: 4 })) return 'h4'
+    if (isActive('heading', { level: 5 })) return 'h5'
+    if (isActive('heading', { level: 6 })) return 'h6'
+    return 'paragraph'
+  }
+
+  const getCurrentHeadingDisplay = () => {
+    const level = getCurrentHeadingLevel()
+    if (level === 'paragraph') return 'Paragraph'
+    return level.toUpperCase()
+  }
 
   return (
     <div className={cn(
@@ -135,18 +198,18 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showBold && (
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
-          isActive={editor.isActive('bold')}
-          tooltip="Bold"
+          isActive={isActive('bold')}
+          tooltip="Bold (Ctrl+B)"
         >
           <Bold className="h-4 w-4" />
         </ToolbarButton>
       )}
-      
+
       {defaultConfig.showItalic && (
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          isActive={editor.isActive('italic')}
-          tooltip="Italic"
+          isActive={isActive('italic')}
+          tooltip="Italic (Ctrl+I)"
         >
           <Italic className="h-4 w-4" />
         </ToolbarButton>
@@ -155,8 +218,8 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showUnderline && (
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          isActive={editor.isActive('underline')}
-          tooltip="Underline"
+          isActive={isActive('underline')}
+          tooltip="Underline (Ctrl+U)"
         >
           <Underline className="h-4 w-4" />
         </ToolbarButton>
@@ -165,7 +228,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showStrike && (
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          isActive={editor.isActive('strike')}
+          isActive={isActive('strike')}
           tooltip="Strikethrough"
         >
           <Strikethrough className="h-4 w-4" />
@@ -175,7 +238,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showCode && (
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleCode().run()}
-          isActive={editor.isActive('code')}
+          isActive={isActive('code')}
           tooltip="Inline Code"
         >
           <Code className="h-4 w-4" />
@@ -187,26 +250,20 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {/* Headings */}
       {defaultConfig.showHeadings && (
         <Select
-          value={
-            editor.isActive('heading', { level: 1 }) ? 'h1' :
-            editor.isActive('heading', { level: 2 }) ? 'h2' :
-            editor.isActive('heading', { level: 3 }) ? 'h3' :
-            editor.isActive('heading', { level: 4 }) ? 'h4' :
-            editor.isActive('heading', { level: 5 }) ? 'h5' :
-            editor.isActive('heading', { level: 6 }) ? 'h6' :
-            'paragraph'
-          }
+          value={getCurrentHeadingLevel()}
           onValueChange={(value) => {
             if (value === 'paragraph') {
               editor.chain().focus().setParagraph().run()
             } else {
               const level = parseInt(value.substring(1)) as 1 | 2 | 3 | 4 | 5 | 6
-              editor.chain().focus().toggleHeading({ level }).run()
+              editor.chain().focus().setHeading({ level }).run()
             }
           }}
         >
-          <SelectTrigger className="w-24 h-8">
-            <SelectValue placeholder="Text" />
+          <SelectTrigger className="w-32 h-8">
+            <SelectValue>
+              {getCurrentHeadingDisplay()}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="paragraph">
@@ -262,7 +319,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
         <>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            isActive={editor.isActive('bulletList')}
+            isActive={isActive('bulletList')}
             tooltip="Bullet List"
           >
             <List className="h-4 w-4" />
@@ -270,8 +327,8 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
 
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            isActive={editor.isActive('orderedList')}
-            tooltip="Ordered List"
+            isActive={isActive('orderedList')}
+            tooltip="Numbered List"
           >
             <ListOrdered className="h-4 w-4" />
           </ToolbarButton>
@@ -281,7 +338,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showQuote && (
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          isActive={editor.isActive('blockquote')}
+          isActive={isActive('blockquote')}
           tooltip="Quote"
         >
           <Quote className="h-4 w-4" />
@@ -291,7 +348,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showCodeBlock && (
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          isActive={editor.isActive('codeBlock')}
+          isActive={isActive('codeBlock')}
           tooltip="Code Block"
         >
           <Code2 className="h-4 w-4" />
@@ -305,7 +362,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
         <>
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign('left').run()}
-            isActive={editor.isActive({ textAlign: 'left' })}
+            isActive={getCurrentTextAlign() === 'left'}
             tooltip="Align Left"
           >
             <AlignLeft className="h-4 w-4" />
@@ -313,7 +370,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
 
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign('center').run()}
-            isActive={editor.isActive({ textAlign: 'center' })}
+            isActive={getCurrentTextAlign() === 'center'}
             tooltip="Align Center"
           >
             <AlignCenter className="h-4 w-4" />
@@ -321,7 +378,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
 
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign('right').run()}
-            isActive={editor.isActive({ textAlign: 'right' })}
+            isActive={getCurrentTextAlign() === 'right'}
             tooltip="Align Right"
           >
             <AlignRight className="h-4 w-4" />
@@ -329,7 +386,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
 
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign('justify').run()}
-            isActive={editor.isActive({ textAlign: 'justify' })}
+            isActive={getCurrentTextAlign() === 'justify'}
             tooltip="Justify"
           >
             <AlignJustify className="h-4 w-4" />
@@ -357,7 +414,10 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
                       key={color}
                       className="w-8 h-8 rounded border-2 border-border hover:scale-110 transition-transform"
                       style={{ backgroundColor: color }}
-                      onClick={() => editor.chain().focus().setColor(color).run()}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().setColor(color).run()
+                      }}
                       title={color}
                     />
                   ))}
@@ -372,10 +432,10 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showHighlight && (
         <Popover>
           <PopoverTrigger asChild>
-            <Button 
-              variant={editor.isActive('highlight') ? "default" : "ghost"} 
-              size="sm" 
-              className="h-8 w-8 p-0" 
+            <Button
+              variant={isActive('highlight') ? "default" : "ghost"}
+              size="sm"
+              className="h-8 w-8 p-0"
               title="Highlight"
             >
               <Highlighter className="h-4 w-4" />
@@ -391,7 +451,10 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
                       key={color}
                       className="w-8 h-8 rounded border-2 border-border hover:scale-110 transition-transform"
                       style={{ backgroundColor: color }}
-                      onClick={() => editor.chain().focus().toggleHighlight({ color }).run()}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        editor.chain().focus().toggleHighlight({ color }).run()
+                      }}
                       title={color}
                     />
                   ))}
@@ -416,10 +479,10 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {defaultConfig.showLink && (
         <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
           <PopoverTrigger asChild>
-            <Button 
-              variant={editor.isActive('link') ? "default" : "ghost"} 
-              size="sm" 
-              className="h-8 w-8 p-0" 
+            <Button
+              variant={isActive('link') ? "default" : "ghost"}
+              size="sm"
+              className="h-8 w-8 p-0"
               title="Link"
             >
               <LinkIcon className="h-4 w-4" />
@@ -445,7 +508,7 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
                 <Button size="sm" onClick={handleAddLink} disabled={!linkUrl}>
                   Add Link
                 </Button>
-                {editor.isActive('link') && (
+                {isActive('link') && (
                   <Button size="sm" variant="destructive" onClick={handleRemoveLink}>
                     Remove Link
                   </Button>
@@ -511,16 +574,16 @@ export const Toolbar = ({ editor, config = {}, className }: ToolbarProps) => {
       {/* History */}
       <ToolbarButton
         onClick={() => editor.chain().focus().undo().run()}
-        disabled={!editor.can().undo()}
-        tooltip="Undo"
+        disabled={!canExecute('undo')}
+        tooltip="Undo (Ctrl+Z)"
       >
         <Undo className="h-4 w-4" />
       </ToolbarButton>
 
       <ToolbarButton
         onClick={() => editor.chain().focus().redo().run()}
-        disabled={!editor.can().redo()}
-        tooltip="Redo"
+        disabled={!canExecute('redo')}
+        tooltip="Redo (Ctrl+Y)"
       >
         <Redo className="h-4 w-4" />
       </ToolbarButton>
